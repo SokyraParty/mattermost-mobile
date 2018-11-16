@@ -82,7 +82,7 @@ export default class TextSetting extends PureComponent {
                 />
             );
         } else if (typeof label === 'string') {
-            labelContent = <Text>{label}</Text>;
+            labelContent = <Text style={style.title}>{label}</Text>;
         }
 
         let {keyboardType} = this.props;
@@ -93,6 +93,24 @@ export default class TextSetting extends PureComponent {
         let inputStyle = style.input;
         if (multiline) {
             inputStyle = style.multiline;
+        }
+
+        let helpTextContent;
+        if (helpText) {
+            helpTextContent = (
+                <Text style={style.helpText}>
+                    {helpText}
+                </Text>
+            );
+        }
+
+        let errorTextContent;
+        if (errorText) {
+            errorTextContent = (
+                <Text style={style.errorText}>
+                    {errorText}
+                </Text>
+            );
         }
 
         return (
@@ -131,16 +149,8 @@ export default class TextSetting extends PureComponent {
                     </Text>
                     }
                 </View>
-                {helpText != null &&
-                    <Text style={style.helpText}>
-                        {helpText}
-                    </Text>
-                }
-                {errorText != null &&
-                    <Text style={style.errorText}>
-                        {errorText}
-                    </Text>
-                }
+                {helpTextContent}
+                {errorTextContent}
             </View>
         );
     }

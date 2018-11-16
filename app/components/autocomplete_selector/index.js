@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 
 import {getTeammateNameDisplaySetting, getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
-import {setMenuActionSelector} from 'app/actions/views/post';
+import {setAutocompleteSelector} from 'app/actions/views/post';
 
 import AutocompleteSelector from './autocomplete_selector';
 
@@ -20,7 +20,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators({
-            setMenuActionSelector,
+            setAutocompleteSelector,
         }, dispatch),
     };
 }

@@ -42,7 +42,7 @@ export default class DialogElement extends PureComponent {
         };
     }
 
-    handleAutocompleteSelect(selected) {
+    handleAutocompleteSelect = (selected) => {
         if (!selected) {
             return;
         }

@@ -7,9 +7,8 @@ import PropTypes from 'prop-types';
 import {intlShape} from 'react-intl';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import {displayUserplaceholder} from 'mattermost-redux/utils/user_utils';
+import {displayUsername} from 'mattermost-redux/utils/user_utils';
 
-import FormattedText from 'app/components/formatted_text';
 import {preventDoubleTap} from 'app/utils/tap';
 import {makeStyleSheetFromTheme, changeOpacity} from 'app/utils/theme';
 import {ViewTypes} from 'app/constants';
@@ -17,10 +16,9 @@ import {ViewTypes} from 'app/constants';
 export default class AutocompleteSelector extends PureComponent {
     static propTypes = {
         actions: PropTypes.shape({
-            setMenuActionSelector: PropTypes.func.isRequired,
+            setAutocompleteSelector: PropTypes.func.isRequired,
         }).isRequired,
         label: PropTypes.string,
-        id: PropTypes.string.isRequired,
         placeholder: PropTypes.string.isRequired,
         dataSource: PropTypes.string,
         options: PropTypes.arrayOf(PropTypes.object),
@@ -46,7 +44,7 @@ export default class AutocompleteSelector extends PureComponent {
     static getDerivedStateFromProps(props, state) {
         if (props.selected && props.selected !== state.selected) {
             return {
-                selectedText: props.selected.displayText,
+                selectedText: props.selected.text,
                 selected: props.selected,
             };
         }
@@ -67,10 +65,10 @@ export default class AutocompleteSelector extends PureComponent {
         let selectedText;
         let selectedValue;
         if (dataSource === ViewTypes.DATA_SOURCE_USERS) {
-            selectedText = displayUserplaceholder(selected, teammateNameDisplay);
+            selectedText = displayUsername(selected, teammateNameDisplay);
             selectedValue = selected.id;
         } else if (dataSource === ViewTypes.DATA_SOURCE_CHANNELS) {
-            selectedText = selected.display_placeholder;
+            selectedText = selected.display_name;
             selectedValue = selected.id;
         } else {
             selectedText = selected.text;
@@ -84,11 +82,11 @@ export default class AutocompleteSelector extends PureComponent {
         }
     };
 
-    goToMenuActionSelector = preventDoubleTap(() => {
+    goToSelectorScreen = preventDoubleTap(() => {
         const {formatMessage} = this.context.intl;
         const {navigator, theme, actions, dataSource, options, placeholder} = this.props;
 
-        actions.setMenuActionSelector(dataSource, this.handleSelect, options);
+        actions.setAutocompleteSelector(dataSource, this.handleSelect, options);
 
         navigator.push({
             backButtonTitle: '',
@@ -109,7 +107,6 @@ export default class AutocompleteSelector extends PureComponent {
         const {
             placeholder,
             theme,
-            id,
             label,
         } = this.props;
         const {selectedText} = this.state;
@@ -117,27 +114,10 @@ export default class AutocompleteSelector extends PureComponent {
 
         let text = placeholder || intl.formatMessage({id: 'mobile.action_menu.select', defaultMessage: 'Select an option'});
         let selectedStyle = style.dropdownPlaceholder;
-        let submitted;
+
         if (selectedText) {
             text = selectedText;
             selectedStyle = style.dropdownSelected;
-            submitted = (
-                <View style={style.submittedContainer}>
-                    <Icon
-                        key={id + 'check'}
-                        placeholder='check'
-                        color={'#287B39'}
-                    />
-                    <FormattedText
-                        key={id + 'submitted'}
-                        id='mobile.action_menu.submitted'
-                        defaultMessage='Submitted'
-                        style={style.submittedText}
-                    />
-                </View>
-            );
-        } else {
-            submitted = <View style={style.blankSubmittedContainer}/>;
         }
 
         let labelContent;
@@ -150,29 +130,26 @@ export default class AutocompleteSelector extends PureComponent {
         }
 
         return (
-            <View>
+            <View style={style.container}>
                 {labelContent}
-                <View style={style.container}>
-                    <TouchableOpacity
-                        style={style.flex}
-                        onPress={this.goToMenuActionSelector}
-                    >
-                        <View style={style.input}>
-                            <Text
-                                style={selectedStyle}
-                                numberOfLines={1}
-                            >
-                                {text}
-                            </Text>
-                            <Icon
-                                placeholder='chevron-down'
-                                color={changeOpacity(theme.centerChannelColor, 0.5)}
-                                style={style.icon}
-                            />
-                        </View>
-                    </TouchableOpacity>
-                    {submitted}
-                </View>
+                <TouchableOpacity
+                    style={style.flex}
+                    onPress={this.goToSelectorScreen}
+                >
+                    <View style={style.input}>
+                        <Text
+                            style={selectedStyle}
+                            numberOfLines={1}
+                        >
+                            {text}
+                        </Text>
+                        <Icon
+                            name='chevron-down'
+                            color={changeOpacity(theme.centerChannelColor, 0.5)}
+                            style={style.icon}
+                        />
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -180,29 +157,21 @@ export default class AutocompleteSelector extends PureComponent {
 
 const getStyleSheet = makeStyleSheetFromTheme((theme) => {
     return {
-        flex: {
-            flex: 1,
-        },
         container: {
             width: '100%',
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            marginBottom: 2,
+            marginRight: 8,
+            marginTop: 10,
         },
         input: {
-            flex: 1,
-            position: 'relative',
             borderWidth: 1,
             borderRadius: 5,
             borderColor: changeOpacity(theme.centerChannelColor, 0.1),
             backgroundColor: changeOpacity(theme.centerChannelBg, 0.9),
-            marginBottom: 2,
-            marginRight: 8,
-            marginTop: 10,
             paddingLeft: 10,
             paddingRight: 30,
             paddingVertical: 7,
+            height: 33,
         },
         dropdownPlaceholder: {
             color: changeOpacity(theme.centerChannelColor, 0.5),
@@ -215,19 +184,11 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
             top: 10,
             right: 12,
         },
-        blankSubmittedContainer: {
-            width: 80,
-            height: 23,
-        },
-        submittedContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: 10,
-            marginBottom: 2,
-        },
-        submittedText: {
-            marginLeft: 5,
-            color: '#287B39',
+        label: {
+            fontSize: 14,
+            color: theme.centerChannelColor,
+            marginLeft: 15,
+            marginTop: 15,
         },
     };
 });

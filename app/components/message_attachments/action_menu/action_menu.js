@@ -2,6 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React, {PureComponent} from 'react';
+import {View} from 'react-native';
 import PropTypes from 'prop-types';
 import {intlShape} from 'react-intl';
 
@@ -42,7 +43,6 @@ export default class ActionMenu extends PureComponent {
     render() {
         const {
             name,
-            id,
             dataSource,
             selected,
             options,
@@ -50,15 +50,16 @@ export default class ActionMenu extends PureComponent {
         } = this.props;
 
         return (
-            <AutocompleteSelector
-                id={id}
-                placeholder={name}
-                dataSource={dataSource}
-                options={options}
-                selected={selected}
-                navigator={navigator}
-                onSelected={this.handleSelect}
-            />
+            <View>
+                <AutocompleteSelector
+                    placeholder={name}
+                    dataSource={dataSource}
+                    options={options}
+                    selected={selected}
+                    navigator={navigator}
+                    onSelected={this.handleSelect}
+                />
+            </View>
         );
     }
 }

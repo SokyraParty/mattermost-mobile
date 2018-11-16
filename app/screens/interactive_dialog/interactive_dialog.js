@@ -4,9 +4,9 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {intlShape} from 'react-intl';
-import {View} from 'react-native';
+import {ScrollView} from 'react-native';
 
-import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
+import {makeStyleSheetFromTheme} from 'app/utils/theme';
 
 import StatusBar from 'app/components/status_bar';
 
@@ -66,7 +66,7 @@ export default class InteractiveDialog extends PureComponent {
         const style = getStyleFromTheme(theme);
 
         return (
-            <View style={style.container}>
+            <ScrollView style={style.container}>
                 <StatusBar/>
                 {elements.map((e) => {
                     return (
@@ -91,7 +91,7 @@ export default class InteractiveDialog extends PureComponent {
                         />
                     );
                 })}
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -99,30 +99,8 @@ export default class InteractiveDialog extends PureComponent {
 const getStyleFromTheme = makeStyleSheetFromTheme((theme) => {
     return {
         container: {
-            flex: 1,
             backgroundColor: theme.centerChannelBg,
-        },
-        searchBar: {
-            marginVertical: 5,
-        },
-        loadingContainer: {
-            alignItems: 'center',
-            backgroundColor: theme.centerChannelBg,
-            height: 70,
-            justifyContent: 'center',
-        },
-        loadingText: {
-            color: changeOpacity(theme.centerChannelColor, 0.6),
-        },
-        noResultContainer: {
-            flexGrow: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        noResultText: {
-            fontSize: 26,
-            color: changeOpacity(theme.centerChannelColor, 0.5),
+            marginBottom: 20,
         },
     };
 });

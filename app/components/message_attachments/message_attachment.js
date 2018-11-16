@@ -69,7 +69,7 @@ export default class MessageAttachment extends PureComponent {
         this.mounted = false;
     }
 
-    getActionView = (style) => {
+    getActionView = () => {
         const {attachment, postId, navigator} = this.props;
         const {actions} = attachment;
 
@@ -113,9 +113,9 @@ export default class MessageAttachment extends PureComponent {
         });
 
         return (
-            <View style={style.bodyContainer}>
+            <React.Fragment>
                 {content}
-            </View>
+            </React.Fragment>
         );
     };
 
@@ -426,7 +426,7 @@ export default class MessageAttachment extends PureComponent {
         }
 
         const fields = this.getFieldsTable(style);
-        const actions = this.getActionView(style);
+        const actions = this.getActionView();
 
         let image;
         if (imageUri) {
@@ -531,9 +531,6 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
         heading: {
             color: theme.centerChannelColor,
             fontWeight: '600',
-        },
-        bodyContainer: {
-            flex: 1,
         },
         imageContainer: {
             borderColor: changeOpacity(theme.centerChannelColor, 0.1),
