@@ -7,56 +7,98 @@ import {
     View,
     Text,
     TextInput,
+    Platform,
 } from 'react-native';
 
 import FormattedText from 'app/components/formatted_text';
 import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 
-export default class AccountSettingsItem extends PureComponent {
+export default class TextSetting extends PureComponent {
     static propTypes = {
-        disabled: PropTypes.bool,
-        field: PropTypes.string.isRequired,
-        format: PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            defaultMessage: PropTypes.string.isRequired,
-        }),
+        id: PropTypes.string.isRequired,
+        label: PropTypes.oneOfType([
+            PropTypes.shape({
+                id: PropTypes.string.isRequired,
+                defaultMessage: PropTypes.string.isRequired,
+            }),
+            PropTypes.string,
+        ]),
+        placeholder: PropTypes.string,
         helpText: PropTypes.string,
+        errorText: PropTypes.string,
+        disabled: PropTypes.bool,
+        disabledText: PropTypes.string,
         maxLength: PropTypes.number,
         optional: PropTypes.bool,
         theme: PropTypes.object.isRequired,
-        updateValue: PropTypes.func.isRequired,
+        onChange: PropTypes.func.isRequired,
         value: PropTypes.string.isRequired,
+        multiline: PropTypes.bool,
+        keyboardType: PropTypes.oneOf([
+            'default',
+            'number-pad',
+            'decimal-pad',
+            'numeric',
+            'email-address',
+            'phone-pad',
+            'url',
+        ]),
     };
 
     static defaultProps = {
         optional: false,
         disabled: false,
+        multiline: false,
+        keyboardType: 'default',
     };
 
     onChangeText = (value) => {
-        const {field, updateValue} = this.props;
-        updateValue({[field]: value});
+        const {id, onChange} = this.props;
+        onChange(id, value);
     };
 
     render() {
         const {
             theme,
-            format,
+            label,
+            placeholder,
             helpText,
             optional,
             disabled,
+            disabledText,
+            errorText,
             value,
+            multiline,
         } = this.props;
         const style = getStyleSheet(theme);
+
+        let labelContent = label;
+        if (label && label.defaultMessage) {
+            labelContent = (
+                <FormattedText
+                    style={style.title}
+                    id={label.id}
+                    defaultMessage={label.defaultMessage}
+                />
+            );
+        } else if (typeof label === 'string') {
+            labelContent = <Text>{label}</Text>;
+        }
+
+        let {keyboardType} = this.props;
+        if (Platform.OS === 'android' && keyboardType === 'url') {
+            keyboardType = 'default';
+        }
+
+        let inputStyle = style.input;
+        if (multiline) {
+            inputStyle = style.multiline;
+        }
 
         return (
             <View>
                 <View style={style.titleContainer15}>
-                    <FormattedText
-                        style={style.title}
-                        id={format.id}
-                        defaultMessage={format.defaultMessage}
-                    />
+                    {labelContent}
                     {optional && (
                         <FormattedText
                             style={style.optional}
@@ -70,28 +112,47 @@ export default class AccountSettingsItem extends PureComponent {
                         <TextInput
                             ref={this.channelNameRef}
                             value={value}
+                            placeholder={placeholder}
                             onChangeText={this.onChangeText}
-                            style={style.input}
+                            style={inputStyle}
                             autoCapitalize='none'
                             autoCorrect={false}
                             maxLength={this.props.maxLength}
                             editable={!disabled}
                             underlineColorAndroid='transparent'
                             disableFullscreenUI={true}
+                            multiline={multiline}
+                            keyboardType={keyboardType}
                         />
                     </View>
                     {disabled &&
                     <Text style={style.helpText}>
-                        {helpText}
+                        {disabledText}
                     </Text>
                     }
                 </View>
+                {helpText != null &&
+                    <Text style={style.helpText}>
+                        {helpText}
+                    </Text>
+                }
+                {errorText != null &&
+                    <Text style={style.errorText}>
+                        {errorText}
+                    </Text>
+                }
             </View>
         );
     }
 }
 
 const getStyleSheet = makeStyleSheetFromTheme((theme) => {
+    const input = {
+        color: theme.centerChannelColor,
+        fontSize: 14,
+        paddingHorizontal: 15,
+    };
+
     return {
         inputContainer: {
             borderTopWidth: 1,
@@ -101,10 +162,12 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
             backgroundColor: theme.centerChannelBg,
         },
         input: {
-            color: theme.centerChannelColor,
-            fontSize: 14,
+            ...input,
             height: 40,
-            paddingHorizontal: 15,
+        },
+        multiline: {
+            ...input,
+            minHeight: 125,
         },
         disabled: {
             backgroundColor: changeOpacity(theme.centerChannelColor, 0.1),
@@ -126,6 +189,12 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
         helpText: {
             fontSize: 12,
             color: changeOpacity(theme.centerChannelColor, 0.5),
+            marginHorizontal: 15,
+            marginVertical: 10,
+        },
+        errorText: {
+            fontSize: 12,
+            color: theme.errorTextColor,
             marginHorizontal: 15,
             marginVertical: 10,
         },
