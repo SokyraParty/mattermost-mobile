@@ -439,7 +439,6 @@ export default class ChannelInfo extends PureComponent {
 
     render() {
         const {
-            canDeleteChannel,
             currentChannel,
             currentChannelCreatorName,
             currentChannelMemberCount,
@@ -500,19 +499,6 @@ export default class ChannelInfo extends PureComponent {
                             </View>
                         }
                     </View>
-                    {this.renderLeaveOrDeleteChannelRow() && canDeleteChannel && !channelIsArchived &&
-                        <View style={style.footer}>
-                            <ChannelInfoRow
-                                action={this.handleDelete}
-                                defaultMessage='Archive Channel'
-                                iconColor='#CA3B27'
-                                icon='archive'
-                                textId={t('mobile.routes.channelInfo.delete_channel')}
-                                textColor='#CA3B27'
-                                theme={theme}
-                            />
-                        </View>
-                    }
                     {this.renderCloseDirect() &&
                         <View style={style.footer}>
                             <ChannelInfoRow
